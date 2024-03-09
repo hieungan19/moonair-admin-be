@@ -2,7 +2,7 @@
   "name": "moonair-be",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "ijs",
   "scripts": {
     "start": "nodemon server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -14,8 +14,25 @@
     "nodemon": "^3.1.0"
   },
   "dependencies": {
+    "bcrypt": "^5.1.1",
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.20.2",
     "cors": "^2.8.5",
+    "crypto": "^1.0.1",
+    "dotenv": "^16.4.5",
     "express": "^4.18.3",
-    "mysql2": "^3.9.2"
+    "express-mongo-sanitize": "^2.2.0",
+    "express-rate-limit": "^7.2.0",
+    "express-session": "^1.18.0",
+    "express-validator": "^7.0.1",
+    "html-to-text": "^9.0.5",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.2.1",
+    "morgan": "^1.10.0",
+    "nodemailer": "^6.9.11",
+    "passport": "^0.7.0",
+    "passport-google-oauth20": "^2.0.0",
+    "prettier": "^3.2.5",
+    "pug": "^3.0.2"
   }
 }
