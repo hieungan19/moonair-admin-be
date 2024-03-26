@@ -8,8 +8,10 @@ const cors = require('cors');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const app = express();
 const userRouter = require('./routes/userRoutes');
+const airportRouter = require('./routes/airportRoutes');
 const { loginWithGG } = require('./controllers/authController');
-
+const AppError = require('./utils/appError');
+const aircraftRouter = require('./routes/aircraftRoutes');
 //Middleware
 app.use(
   cors({
@@ -54,5 +56,10 @@ passport.deserializeUser((user, done) => {
 //Routes
 
 app.use('/api/v1/users', userRouter);
+app.use('/api/v1/airports', airportRouter);
+app.use('/api/v1/aircrafts', aircraftRouter);
+app.all('*', (req, res, next) => {
+  next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
+});
 
 module.exports = app;
