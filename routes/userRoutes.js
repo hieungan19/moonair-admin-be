@@ -7,7 +7,14 @@ const {
   updatePassword,
   protect,
   logout,
+  restrictTo,
 } = require('../controllers/authController');
+const {
+  getMe,
+  getUser,
+  getAllUsers,
+  updateUserData,
+} = require('../controllers/userController');
 const passport = require('passport');
 
 const router = express.Router();
@@ -34,4 +41,11 @@ router.use(protect);
 router.get('/logout', logout);
 router.patch('/updatePassword', updatePassword);
 
+// user
+router.get('/me', getMe, getUser);
+router.patch('/updateData', updateUserData);
+
+// admin
+router.use(restrictTo('admin'));
+router.route('/').get(getAllUsers);
 module.exports = router;

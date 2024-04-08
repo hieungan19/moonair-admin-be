@@ -2,11 +2,15 @@ const mongoose = require('mongoose');
 const airportSchema = new mongoose.Schema({
   name: {
     type: String,
-    require: [true, 'A airport must have a name'],
+    require: [true, 'A airport must have a name.'],
   },
   city: {
     type: String,
-    require: [true, 'A airport must have a city'],
+    require: [true, 'A airport must have a city.'],
+  },
+  country: {
+    type: String,
+    require: [true, 'A airport must have a country.'],
   },
 });
 

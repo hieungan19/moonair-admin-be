@@ -1,0 +1,289 @@
+0. RULE
+
+1. TICKET CLASS
+GET
+{
+	classId: 
+	name:
+	ratio: 
+}
+
+POST
+{
+	name:
+	ratio: 
+}
+
+Chỉ chỉnh được phần trăm 
+PATCH: 
+{
+	ratio: 
+}
+
+
+2.FLIGHT
+
+// GET All Flight By Country Name, Date, available seat 
+ (But code logic follow by id_ departure airport & destination airport id và số ghế còn mặc định là 1 )
+
+
+flightId, 
+aircraftId, 
+departureAirportName,
+destinationAirportName,
+departureCity,
+destinationCity, 
+departureTime,
+takeoffTime, 
+duration, 
+numOfTransitAirport
+
+// GET A Flight By Id
+
+flightId, 
+departureAirportName,
+destinationAirportName,
+departureTime,
+takeoffTime, 
+duration, 
+aircraftName, 
+transitAirports: [
+	{
+		airportName:
+		startTime:
+		endTime: 
+		duration:
+		
+	}
+]
+tickets: [
+	{
+		classId: 
+		className
+		numOfSeat:
+		numOfBookedSeat: 
+	}
+]
+bookedSeats: [
+	{
+		seatNo:
+		classId: 
+	}
+] 
+
+
+// POST a flight:
+
+flightId, 
+aircraftId, 
+departureAirportId,
+destinationAirportId,
+departureTime,
+takeoffTime, 
+
+transitAirports: [
+	{
+		airportId: 
+		aircraftId: 
+		startTime:
+		endTime: 
+		transitNote: 
+	}
+]
+
+tickets:[
+	{
+		classId:,
+		numOfSeat: 
+	}
+]
+
+//PATCH a flight:
+
+Khi sum bookedSeats = 0 thì được sửa. 
+Khi delay chuyến bay 
+{
+	delayDuration: 
+}
+-> Thông báo đến người dùng
+
+3. HISTORY 
+
+//Get all bought ticket dựa theo para: userId  (sắp xếp theo quá khứ -> Hiện tại)
+
+flightId, 
+aircraftId, 
+departureAirportName,
+destinationAirportName,
+departureCity,
+destinationCity, 
+departureTime,
+takeoffTime, 
+duration, 
+numOfTransitAirport
+
+
+//Get a ticket by id 
+-> id string [PK] -> Mã QR 
+ticketClassName 
+status ticket_status [enum: Đã thanh toán, chờ thanh toán, đã hủy]
+price double
+seatNo int 
+
+-> Về flight: 
+flightId, 
+
+departureAirportName,
+destinationAirportName,
+departureCity
+destinationCity
+departureTime,
+takeoffTime, 
+duration, 
+aircraftName, 
+transitAirports: [
+	{
+		airportName:
+		startTime:
+		endTime: 
+		duration:
+		
+	}
+]
+
+-> Về passenger: 
+passengerName string
+phoneNumber string 
+citizenId ?
+passportId ?
+dob ?
+
+
+
+4. USER
+//Get a user 
+
+//Get all user 
+
+
+5. INVOICE
+// POST 
+flightId
+userId
+invoiceDate: Date.now()
+paymentStatus: notPayed
+bookedSeats: [
+	{
+		seatNo,
+		classId, 
+	}
+]
+
+Lưu ý: total tự tính, 
+giá mỗi vé tự tính -> Tự động thêm vào bảng TICKET.  
+
+POST liên tục vào bảng Ticket: 
+
+invoiceId
+flightId
+price 
+seatNo
+classId
+
+-> Về passenger: 
+passengerName string
+phoneNumber string 
+citizenId ?
+passportId ?
+dob ?
+
+
+//PATCH
+thay đổi trạng thái thanh toán 
+
+
+6. USER
+
+// AUTHEN: Đổi mật khẩu
+
+//PATCH: Sửa thông tin user
+
+7. REPORT 
+// Doanh thu + số vé bán ra + số chuyến bay theo từng tháng/ năm
+{
+	
+	data:{
+		year: 
+		month: 
+		turnover: 
+		numOfSoldTickets: 
+		numOfFlights: 
+	}
+	numOfUsers
+
+}
+// Số lượng user của app {
+	year: 
+	numOfUsers: 
+}
+// Thống kê theo tháng
+{
+	sumTurnover:
+	sumNumOfFlights:
+	sumNumOfSoldTickets: 
+	sumNumOfCanceledTickets:
+	flights:{
+		numOfSoldTicket:
+		numOfCanceledTicket: 
+		turnover: 
+	}
+}
+
+7. NOTI
+
+
+// Chuyến bay khởi hành
+
+{
+	title: "Chuyến bay sắp khởi hành" 
+	description: "Chuyến bay xuất phát từ ... đến ... sẽ khởi hành trong 1 giờ tới. 
+	Hành khách vui lòng đến quầy checkin để hoàn thành các thủ tục trước giờ khởi hành chậm nhất 30 phút."
+	departureCity
+	destinationCity
+
+
+}
+
+
+
+// Thông báo thanh toán thành công hóa đơn
+{
+	title: "Thanh toán hóa đơn thành công."
+	description: "Tổng giá trị thành toán: ..."
+	total: 
+
+}
+
+// Chuyến bay delay 
+{
+	title: "Chuyến bay trễ"
+	description: "
+	Chuyến bay ... bị trễ
+	Mã số chuyến bay: ...
+	Thời gian khởi hành ban đầu: ...
+	Thời gian mới dự kiến khởi hành: ...
+	Thời gian trễ: ...
+	Lý do trễ: ..." 
+
+	delayDuration: 
+	departureTime: 
+	reason: 
+
+}
+
+8. NEWFEED
+{
+	title: 
+	description: Markdown
+	img: 
+}

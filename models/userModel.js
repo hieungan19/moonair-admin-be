@@ -53,6 +53,10 @@ const userSchema = new mongoose.Schema({
   passwordChangeAt: Date,
   passwordReset: String,
   passwordResetExpires: Date,
+  cityzenId: String,
+  passportId: String,
+  dob: Date,
+  country: String,
 });
 // middle
 userSchema.pre(/^find/, function (next) {
