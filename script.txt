@@ -100,12 +100,13 @@ tickets:[
 
 //PATCH a flight:
 
-Khi sum bookedSeats = 0 thì được sửa. 
+Khi sum bookedSeats = 0 thì được sửa và xóa.  
 Khi delay chuyến bay 
 {
 	delayDuration: 
 }
 -> Thông báo đến người dùng
+
 
 3. HISTORY 
 
@@ -160,7 +161,7 @@ dob ?
 
 
 
-4. USER
+4. USER (DONE)
 //Get a user 
 
 //Get all user 
@@ -185,6 +186,7 @@ giá mỗi vé tự tính -> Tự động thêm vào bảng TICKET.
 POST liên tục vào bảng Ticket: 
 
 invoiceId
+userId
 flightId
 price 
 seatNo
@@ -202,7 +204,7 @@ dob ?
 thay đổi trạng thái thanh toán 
 
 
-6. USER
+6. USER (DONE)
 
 // AUTHEN: Đổi mật khẩu
 
@@ -287,3 +289,4 @@ thay đổi trạng thái thanh toán
 	description: Markdown
 	img: 
 }
+9. CHAT BOT (DONE)
