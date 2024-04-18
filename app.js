@@ -12,6 +12,7 @@ const airportRouter = require('./routes/airportRoutes');
 const { loginWithGG } = require('./controllers/authController');
 const AppError = require('./utils/appError');
 const aircraftRouter = require('./routes/aircraftRoutes');
+const ticketClassRouter = require('./routes/ticketClassRoutes');
 //Middleware
 app.use(
   cors({
@@ -58,6 +59,7 @@ passport.deserializeUser((user, done) => {
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/airports', airportRouter);
 app.use('/api/v1/aircrafts', aircraftRouter);
+app.use('/api/v1/ticketClasses', ticketClassRouter);
 app.all('*', (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
 });

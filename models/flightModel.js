@@ -3,17 +3,17 @@ const flightTicketSchema = require('./flightTicketModel');
 const transitAirportSchema = require('./transitAirportModel');
 const flightSchema = new mongoose.Schema({
   departureAirportId: {
-    type: String,
+    type: mongoose.Schema.ObjectId,
     require: [true, 'Departure Airport is required.'],
     ref: 'Airport',
   },
   destinationAirportId: {
-    type: String,
+    type: mongoose.Schema.ObjectId,
     require: [true, 'Destination Airport is required.'],
     ref: 'Airport',
   },
   aircraftId: {
-    type: String,
+    type: mongoose.Schema.ObjectId,
     require: [true, 'Aircraft is required.'],
     ref: 'Aircraft',
   },
@@ -31,10 +31,12 @@ const flightSchema = new mongoose.Schema({
   },
   tickets: [flightTicketSchema],
   transitAirports: [transitAirportSchema],
-  bookedSeat: {
-    type: [Number],
-  },
 });
+
+flightSchema.virtual('availableSeat').get(function () {
+  return 0;
+});
+flightSchema.virtual('seatBooked').get(function () {});
 
 flightSchema.pre(/^find/, function (next) {
   this.populate({});

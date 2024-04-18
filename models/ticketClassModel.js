@@ -5,7 +5,7 @@ const ticketClassSchema = new mongoose.Schema({
     require: [true, 'A ticket class must have a name.'],
   },
   ratio: {
-    type: String,
+    type: Number,
     require: [true, 'Ratio is required.'],
   },
 });

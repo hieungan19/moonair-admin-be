@@ -1,11 +1,13 @@
 const mongoose = require('mongoose');
 const transitAirportSchema = new mongoose.Schema({
   airportId: {
-    type: String,
+    type: mongoose.Schema.ObjectId,
+    ref: 'Airport',
     require: [true, 'Airport is required.'],
   },
   aircraftId: {
-    type: String,
+    type: mongoose.Schema.ObjectId,
+    ref: 'Aircraft',
     require: [true, 'Next aircraft is required.'],
   },
   transitStartTime: {
