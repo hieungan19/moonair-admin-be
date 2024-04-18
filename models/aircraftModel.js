@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { createCode } = require('../handlers/factoryHandler');
 const aircraftSchema = new mongoose.Schema(
   {
     name: {
@@ -19,5 +20,9 @@ const aircraftSchema = new mongoose.Schema(
     toObject: { virtuals: true },
   },
 );
+aircraftSchema.virtual('code').get(function () {
+  return createCode(this.id);
+});
+
 const Aircraft = mongoose.model('Aircraft', aircraftSchema);
 module.exports = Aircraft;

@@ -68,3 +68,26 @@ exports.getAll = (Model) =>
       doc,
     });
   });
+
+exports.createCode = (id) => {
+  if (!id) {
+    throw new Error('ID không được để trống');
+  }
+
+  // Chuyển đổi ID thành mã hex
+  const hexString = id.toString();
+
+  // Tạo mã code từ hexString
+  let code = '';
+  const characters =
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  const charLength = characters.length;
+  const hexStringLength = hexString.length;
+  for (let i = 0; i < 6; i++) {
+    // Sử dụng phép tính modulo để lấy giá trị ký tự từ hexString
+    const index = parseInt(hexString[i % hexStringLength], 16) % charLength;
+    code += characters[index];
+  }
+
+  return code;
+};

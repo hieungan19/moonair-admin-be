@@ -142,7 +142,6 @@ exports.login = catchAsync(async (req, res, next) => {
 });
 
 exports.restrictTo = (...roles) => {
-  console.log(roles);
   return (req, res, next) => {
     //roles is an array ['admin', 'lead-guide']
     if (!roles.includes(req.user.role))

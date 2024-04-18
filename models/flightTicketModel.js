@@ -11,6 +11,7 @@ const flightTicketSchema = new mongoose.Schema({
   },
   seatBooked: {
     type: Number,
+    default: 0,
     require: [true, 'Seat booked is required.'],
   },
 });

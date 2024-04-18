@@ -23,4 +23,16 @@ const transitAirportSchema = new mongoose.Schema({
   },
 });
 
+transitAirportSchema.virtual('duration').get(function () {
+  // Lấy thời gian bắt đầu và kết thúc transit
+  const transitStartTime = this.transitStartTime.getTime(); // Chuyển đổi sang milliseconds
+  const transitEndTime = this.transitEndTime.getTime(); // Chuyển đổi sang milliseconds
+
+  // Tính hiệu của thời gian kết thúc và bắt đầu transit, sau đó chuyển đổi kết quả thành phút
+  const durationInMs = transitEndTime - transitStartTime;
+  const durationInMinutes = durationInMs / (1000 * 60); // 1000 milliseconds * 60 seconds
+
+  return durationInMinutes; // Trả về thời gian transit tính theo phút
+});
+
 module.exports = transitAirportSchema;
