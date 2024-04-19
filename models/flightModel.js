@@ -4,24 +4,24 @@ const transitAirportSchema = require('./transitAirportModel');
 const { createCode } = require('../handlers/factoryHandler');
 const flightSchema = new mongoose.Schema(
   {
-    departureAirportId: {
+    departureAirport: {
       type: mongoose.Schema.ObjectId,
       require: [true, 'Departure Airport is required.'],
       ref: 'Airport',
     },
-    destinationAirportId: {
+    destinationAirport: {
       type: mongoose.Schema.ObjectId,
       require: [true, 'Destination Airport is required.'],
       ref: 'Airport',
       validate: {
         validator: function (value) {
-          return value.toString() !== this.departureAirportId.toString();
+          return value.toString() !== this.departureAirport.toString();
         },
         message:
           'Destination Airport must be different from Departure Airport.',
       },
     },
-    aircraftId: {
+    aircraft: {
       type: mongoose.Schema.ObjectId,
       require: [true, 'Aircraft is required.'],
       ref: 'Aircraft',
@@ -70,9 +70,9 @@ flightSchema.virtual('duration').get(function () {
   return durationInHours; // Trả về thời gian bay tính theo giờ
 });
 
-flightSchema.virtual('availableSeat').get(function () {
+flightSchema.virtual('availableSeats').get(function () {
   const res = this.tickets.reduce((total, ticket) => {
-    return total + ticket.numOfTic - ticket.seatBooked;
+    return total + ticket.numOfTic - ticket.seatBooked.length;
   }, 0);
 
   return res;

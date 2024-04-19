@@ -2,6 +2,28 @@ const factory = require('../handlers/factoryHandler');
 const Airport = require('../models/airportModel');
 const Flight = require('../models/flightModel');
 
+const formattedFlight = (flight) => {
+  return {
+    _id: flight.id,
+    departureAirport: {
+      name: flight.departureAirport.name,
+      city: flight.departureAirport.city,
+      country: flight.departureAirport.country,
+    },
+    destinationAirport: {
+      name: flight.destinationAirport.name,
+      city: flight.destinationAirport.city,
+      country: flight.departureAirport.country,
+    },
+    takeoffTime: flight.takeoffTime,
+    landingTime: flight.landingTime,
+    duration: flight.duration,
+    availableSeats: flight.availableSeats,
+    flightCode: flight.code,
+    transitAirportCount: flight.transitAirports.length,
+  };
+};
+
 //Create flight with transit Airport
 exports.createFlight = factory.createOne(Flight);
 
@@ -22,19 +44,18 @@ async function selectFlightsByFromToCityAndDate(from, to, takeoffDate) {
 
     // Tìm các chuyến bay dựa trên thông tin sân bay và ngày khởi hành
     const flights = await Flight.find({
-      departureAirportId: departureAirport._id,
-      destinationAirportId: destinationAirport._id,
+      departureAirport: departureAirport._id,
+      destinationAirport: destinationAirport._id,
       takeoffTime: {
         $gte: new Date(takeoffDate),
         $lt: new Date(new Date(takeoffDate).getTime() + 24 * 60 * 60 * 1000), // Kết thúc ngày
       },
     })
-      .populate('departureAirportId', 'name city country') // Chỉ hiển thị thông tin cần thiết của sân bay xuất phát
-      .populate('destinationAirportId', 'name city country') // Chỉ hiển thị thông tin cần thiết của sân bay đến
+      .populate('departureAirport', 'name city country') // Chỉ hiển thị thông tin cần thiết của sân bay xuất phát
+      .populate('destinationAirport', 'name city country') // Chỉ hiển thị thông tin cần thiết của sân bay đến
       .select(
-        'code departureAirportId destinationAirportId takeoffTime landingTime tickets transitAirports',
+        'code departureAirport destinationAirport takeoffTime landingTime tickets transitAirports',
       ); // Chỉ lấy các trường cần thiết
-
     return flights;
   } catch (error) {
     console.error('Lỗi khi lựa chọn các chuyến bay:', error);
@@ -42,50 +63,30 @@ async function selectFlightsByFromToCityAndDate(from, to, takeoffDate) {
   }
 }
 
-exports.getFlightsByFromToCityAndDate = async (req, res) => {
+exports.getFlights = async (req, res) => {
   try {
     const { fromAirport, toAirport, takeoffDate } = req.query;
-    console.log('Hehe', fromAirport, toAirport, takeoffDate);
+    let flights;
 
     // Kiểm tra xem các tham số có tồn tại không
     if (!fromAirport || !toAirport || !takeoffDate) {
-      return res.status(400).json({ message: 'Thiếu thông tin đầu vào.' });
+      flights = await Flight.find()
+        .populate('departureAirport', 'name city country')
+        .populate('destinationAirport', 'name city country')
+        .select(
+          'code departureAirport destinationAirport takeoffTime landingTime tickets transitAirports',
+        );
+    } else {
+      // Gọi hàm selectFlightsByFromToCityAndDate từ service
+      flights = await selectFlightsByFromToCityAndDate(
+        fromAirport,
+        toAirport,
+        takeoffDate,
+      );
     }
-
-    // Gọi hàm selectFlightsByFromToCityAndDate từ service
-    const flights = await selectFlightsByFromToCityAndDate(
-      fromAirport,
-      toAirport,
-      takeoffDate,
-    );
-
-    console.log(flights);
     // Chuẩn bị dữ liệu trả về
     const formattedFlights = flights.map((flight) => {
-      const durationInMinutes =
-        (flight.landingTime - flight.takeoffTime) / (1000 * 60); // Tính độ dài chuyến bay trong phút
-      const availableSeats = flight.tickets.reduce(
-        (total, ticket) => total + ticket.numOfTic - ticket.seatBooked,
-        0,
-      ); // Tính số chỗ còn trống
-      return {
-        departureAirport: {
-          name: flight.departureAirportId.name,
-          city: flight.departureAirportId.city,
-          country: flight.departureAirportId.country,
-        },
-        destinationAirport: {
-          name: flight.destinationAirportId.name,
-          city: flight.destinationAirportId.city,
-          country: flight.departureAirportId.country,
-        },
-        takeoffTime: flight.takeoffTime,
-        landingTime: flight.landingTime,
-        duration: durationInMinutes,
-        availableSeats: availableSeats,
-        flightCode: flight.code,
-        transitAirportCount: flight.transitAirports.length,
-      };
+      return formattedFlight(flight);
     });
 
     // Trả về kết quả
@@ -98,10 +99,40 @@ exports.getFlightsByFromToCityAndDate = async (req, res) => {
   }
 };
 
-//Select all
-
 //Select by id
+exports.getFlightById = async (req, res) => {
+  const flightId = req.params.id;
+  try {
+    // Lấy thông tin của chuyến bay dựa trên ID và populate thông tin liên quan
+    const flight = await Flight.findById(flightId)
+      .populate({
+        path: 'tickets',
+        populate: { path: 'class', select: 'name ratio' }, // Populate thông tin của hạng vé
+      })
+      .populate({
+        path: 'transitAirports',
+        populate: { path: 'airport ', select: 'name ' }, // Populate thông tin của hạng vé
+      })
+      .populate('aircraft', 'name code') // Populate thông tin của máy bay
+      .populate('departureAirport destinationAirport', 'name city'); // Populate thông tin của sân bay xuất phát và sân bay đích
 
-//Update
+    // Kiểm tra xem chuyến bay có tồn tại không
+    if (!flight) {
+      return res.status(404).json({ message: 'Không tìm thấy chuyến bay.' });
+    }
 
-//Delete
+    // Trả về thông tin chuyến bay
+    res.status(200).json({ flight });
+  } catch (error) {
+    console.error('Lỗi khi lấy thông tin chuyến bay:', error);
+    res
+      .status(500)
+      .json({ message: 'Đã xảy ra lỗi khi lấy thông tin chuyến bay.' });
+  }
+};
+
+//Update (for admin)
+exports.updateFlight = factory.updateOne(Flight);
+
+//Delete (for admin)
+exports.deleteFlight = factory.deleteOne(Flight);

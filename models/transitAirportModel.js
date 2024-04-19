@@ -1,11 +1,11 @@
 const mongoose = require('mongoose');
 const transitAirportSchema = new mongoose.Schema({
-  airportId: {
+  airport: {
     type: mongoose.Schema.ObjectId,
     ref: 'Airport',
     require: [true, 'Airport is required.'],
   },
-  aircraftId: {
+  aircraft: {
     type: mongoose.Schema.ObjectId,
     ref: 'Aircraft',
     require: [true, 'Next aircraft is required.'],
@@ -33,6 +33,11 @@ transitAirportSchema.virtual('duration').get(function () {
   const durationInMinutes = durationInMs / (1000 * 60); // 1000 milliseconds * 60 seconds
 
   return durationInMinutes; // Trả về thời gian transit tính theo phút
+});
+
+transitAirportSchema.pre(/^find/, function (next) {
+  this.populate('airport').populate('aircraft');
+  next();
 });
 
 module.exports = transitAirportSchema;

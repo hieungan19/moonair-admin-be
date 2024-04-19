@@ -53,7 +53,6 @@ exports.getOneById = (Model, populatOptions) => {
 
 exports.getAll = (Model) =>
   catchAsync(async (req, res, next) => {
-    // Allow for nested get reviews
     let filter = {};
 
     const features = new APIFeature(Model.find(filter), req.query)
