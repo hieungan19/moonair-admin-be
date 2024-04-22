@@ -28,7 +28,7 @@ const formattedFlight = (flight) => {
 exports.createFlight = factory.createOne(Flight);
 
 //select all flight by from city to city by time
-async function selectFlightsByFromToCityAndDate(from, to, takeoffDate) {
+async function selectFlightsByFromToCityAndDate(from, to, takeoffDate, seats) {
   try {
     // Lấy thông tin về sân bay xuất phát và sân bay đến dựa trên mã sân bay
     const departureAirport = await Airport.findOne({ _id: from });
@@ -43,7 +43,7 @@ async function selectFlightsByFromToCityAndDate(from, to, takeoffDate) {
     }
 
     // Tìm các chuyến bay dựa trên thông tin sân bay và ngày khởi hành
-    const flights = await Flight.find({
+    let flights = await Flight.find({
       departureAirport: departureAirport._id,
       destinationAirport: destinationAirport._id,
       takeoffTime: {
@@ -56,6 +56,8 @@ async function selectFlightsByFromToCityAndDate(from, to, takeoffDate) {
       .select(
         'code departureAirport destinationAirport takeoffTime landingTime tickets transitAirports',
       ); // Chỉ lấy các trường cần thiết
+    flights = flights.filter((flight) => flight.availableSeats >= seats);
+
     return flights;
   } catch (error) {
     console.error('Lỗi khi lựa chọn các chuyến bay:', error);
@@ -65,7 +67,7 @@ async function selectFlightsByFromToCityAndDate(from, to, takeoffDate) {
 
 exports.getFlights = async (req, res) => {
   try {
-    const { fromAirport, toAirport, takeoffDate } = req.query;
+    const { fromAirport, toAirport, takeoffDate, seats } = req.query;
     let flights;
 
     // Kiểm tra xem các tham số có tồn tại không
@@ -76,12 +78,14 @@ exports.getFlights = async (req, res) => {
         .select(
           'code departureAirport destinationAirport takeoffTime landingTime tickets transitAirports',
         );
+      flights = flights.filter((flight) => flight.availableSeats > 0);
     } else {
       // Gọi hàm selectFlightsByFromToCityAndDate từ service
       flights = await selectFlightsByFromToCityAndDate(
         fromAirport,
         toAirport,
         takeoffDate,
+        seats,
       );
     }
     // Chuẩn bị dữ liệu trả về
