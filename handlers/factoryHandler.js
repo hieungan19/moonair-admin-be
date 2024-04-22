@@ -15,12 +15,13 @@ exports.deleteOne = (Model) => {
   });
 };
 exports.updateOne = (Model) => {
-  return catchAsync(async (req, res) => {
+  return catchAsync(async (req, res, next) => {
     const data = await Model.findByIdAndUpdate(req.params.id, req.body, {
       runValidators: true,
       new: true,
     });
-    console.log('Data', data);
+    if (!data) return next(new AppError('No item found with that ID', 404));
+
     res.status(200).json({
       status: 'success',
       data,
@@ -31,6 +32,9 @@ exports.updateOne = (Model) => {
 exports.createOne = (Model) =>
   catchAsync(async (req, res, next) => {
     const data = await Model.create(req.body);
+    if (!data) {
+      return next(new AppError('Fail to create', 400));
+    }
     res.status(200).json({
       status: 'success',
       data,
@@ -42,7 +46,7 @@ exports.getOneById = (Model, populatOptions) => {
     if (populatOptions) query = query.populate(populatOptions);
     const data = await query;
     if (!data) {
-      return next(new AppError('No item found with that ID'));
+      return next(new AppError('No item found with that ID', 404));
     }
     res.status(200).json({
       status: 'success',

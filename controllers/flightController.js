@@ -92,7 +92,6 @@ exports.getFlights = async (req, res) => {
     // Trả về kết quả
     return res.status(200).json(formattedFlights);
   } catch (error) {
-    console.error('Lỗi khi lấy danh sách chuyến bay:', error);
     return res
       .status(500)
       .json({ message: 'Đã xảy ra lỗi khi lấy danh sách chuyến bay.' });
@@ -124,7 +123,6 @@ exports.getFlightById = async (req, res) => {
     // Trả về thông tin chuyến bay
     res.status(200).json({ flight });
   } catch (error) {
-    console.error('Lỗi khi lấy thông tin chuyến bay:', error);
     res
       .status(500)
       .json({ message: 'Đã xảy ra lỗi khi lấy thông tin chuyến bay.' });
