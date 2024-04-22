@@ -9,11 +9,13 @@ const formattedFlight = (flight) => {
       name: flight.departureAirport.name,
       city: flight.departureAirport.city,
       country: flight.departureAirport.country,
+      cityCode: flight.departureAirport.cityCode,
     },
     destinationAirport: {
       name: flight.destinationAirport.name,
       city: flight.destinationAirport.city,
       country: flight.departureAirport.country,
+      cityCode: flight.destinationAirport.cityCode,
     },
     takeoffTime: flight.takeoffTime,
     landingTime: flight.landingTime,
@@ -51,8 +53,8 @@ async function selectFlightsByFromToCityAndDate(from, to, takeoffDate, seats) {
         $lt: new Date(new Date(takeoffDate).getTime() + 24 * 60 * 60 * 1000), // Kết thúc ngày
       },
     })
-      .populate('departureAirport', 'name city country') // Chỉ hiển thị thông tin cần thiết của sân bay xuất phát
-      .populate('destinationAirport', 'name city country') // Chỉ hiển thị thông tin cần thiết của sân bay đến
+      .populate('departureAirport', 'name city country cityCode') // Chỉ hiển thị thông tin cần thiết của sân bay xuất phát
+      .populate('destinationAirport', 'name city country cityCode') // Chỉ hiển thị thông tin cần thiết của sân bay đến
       .select(
         'code departureAirport destinationAirport takeoffTime landingTime tickets transitAirports',
       ); // Chỉ lấy các trường cần thiết
@@ -73,8 +75,8 @@ exports.getFlights = async (req, res) => {
     // Kiểm tra xem các tham số có tồn tại không
     if (!fromAirport || !toAirport || !takeoffDate) {
       flights = await Flight.find()
-        .populate('departureAirport', 'name city country')
-        .populate('destinationAirport', 'name city country')
+        .populate('departureAirport', 'name city country cityCode')
+        .populate('destinationAirport', 'name city country cityCode')
         .select(
           'code departureAirport destinationAirport takeoffTime landingTime tickets transitAirports',
         );
@@ -117,7 +119,10 @@ exports.getFlightById = async (req, res) => {
         populate: { path: 'airport ', select: 'name ' }, // Populate thông tin của hạng vé
       })
       .populate('aircraft', 'name code') // Populate thông tin của máy bay
-      .populate('departureAirport destinationAirport', 'name city'); // Populate thông tin của sân bay xuất phát và sân bay đích
+      .populate(
+        'departureAirport destinationAirport',
+        'name city country cityCode',
+      ); // Populate thông tin của sân bay xuất phát và sân bay đích
 
     // Kiểm tra xem chuyến bay có tồn tại không
     if (!flight) {
