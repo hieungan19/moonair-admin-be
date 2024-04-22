@@ -94,3 +94,13 @@ exports.createCode = (id) => {
 
   return code;
 };
+
+// Tạo mã thành phố
+exports.createCityCode = (city) => {
+  const words = city.split(' ');
+  let cityCode = '';
+  words.forEach((word) => {
+    cityCode += word.charAt(0);
+  });
+  return cityCode.toUpperCase();
+};

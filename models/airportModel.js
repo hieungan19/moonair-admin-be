@@ -1,22 +1,29 @@
 const mongoose = require('mongoose');
-const { createCode } = require('../handlers/factoryHandler');
-const airportSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    require: [true, 'A airport must have a name.'],
+const { createCityCode } = require('../handlers/factoryHandler');
+const airportSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      require: [true, 'A airport must have a name.'],
+    },
+    city: {
+      type: String,
+      require: [true, 'A airport must have a city.'],
+    },
+    country: {
+      type: String,
+      default: 'Viet Nam',
+      require: [true, 'A airport must have a country.'],
+    },
   },
-  city: {
-    type: String,
-    require: [true, 'A airport must have a city.'],
+  {
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
   },
-  country: {
-    type: String,
-    default: 'Vietnam',
-    require: [true, 'A airport must have a country.'],
-  },
+);
+airportSchema.virtual('cityCode').get(function () {
+  return createCityCode(this.city);
 });
-airportSchema.virtual('code').get(function () {
-  return createCode(this.id);
-});
+
 const Airport = mongoose.model('Airport', airportSchema);
 module.exports = Airport;
