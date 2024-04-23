@@ -72,10 +72,17 @@ flightSchema.virtual('duration').get(function () {
   return durationInMinutes; // Trả về thời gian bay tính theo giờ
 });
 
+flightSchema.virtual('code').get(function () {
+  return createCode(this.id);
+});
+
 flightSchema.virtual('availableSeats').get(function () {
-  const res = this.tickets.reduce((total, ticket) => {
-    return total + ticket.numOfTic - ticket.seatBooked.length;
-  }, 0);
+  let res = 0;
+  if (this.tickets) {
+    res = this.tickets.reduce((total, ticket) => {
+      return total + ticket.numOfTic - ticket.seatsBooked.length;
+    }, 0);
+  }
 
   return res;
 });

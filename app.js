@@ -15,6 +15,8 @@ const aircraftRouter = require('./routes/aircraftRoutes');
 const ticketClassRouter = require('./routes/ticketClassRoutes');
 const flightsRouter = require('./routes/flightRoutes');
 const ruleRouter = require('./routes/ruleRoutes');
+const invoiceRouter = require('./routes/buyTicketRoutes');
+const historyRouter = require('./routes/historyTicketRoutes');
 const globalErrorHandler = require('./handlers/errorHandler');
 //Middleware
 app.use(
@@ -65,6 +67,8 @@ app.use('/api/v1/airports', airportRouter);
 app.use('/api/v1/aircrafts', aircraftRouter);
 app.use('/api/v1/ticketClasses', ticketClassRouter);
 app.use('/api/v1/flights', flightsRouter);
+app.use('/api/v1/invoices', invoiceRouter);
+app.use('/api/v1/history', historyRouter);
 app.all('*', (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
 });

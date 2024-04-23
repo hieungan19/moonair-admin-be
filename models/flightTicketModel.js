@@ -9,7 +9,7 @@ const flightTicketSchema = new mongoose.Schema({
     type: Number,
     require: [true, 'Number of ticket is required.'],
   },
-  seatBooked: { type: [Number], default: [] },
+  seatsBooked: { type: [Number], default: [] },
 });
 
 module.exports = flightTicketSchema;

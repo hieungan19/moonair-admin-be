@@ -90,6 +90,7 @@ exports.getFlights = async (req, res) => {
         seats,
       );
     }
+
     // Chuẩn bị dữ liệu trả về
     const formattedFlights = flights.map((flight) => {
       return formattedFlight(flight);
@@ -107,16 +108,17 @@ exports.getFlights = async (req, res) => {
 //Select by id
 exports.getFlightById = async (req, res) => {
   const flightId = req.params.id;
+
   try {
     // Lấy thông tin của chuyến bay dựa trên ID và populate thông tin liên quan
     const flight = await Flight.findById(flightId)
       .populate({
         path: 'tickets',
-        populate: { path: 'class', select: 'name ratio' }, // Populate thông tin của hạng vé
+        populate: { path: 'class', select: 'name ratio' }, // Populate thông tin của hạng vé máy bay
       })
       .populate({
         path: 'transitAirports',
-        populate: { path: 'airport ', select: 'name ' }, // Populate thông tin của hạng vé
+        populate: { path: 'airport ', select: 'name city cityCode ' }, // Populate thông tin sân bay
       })
       .populate('aircraft', 'name code') // Populate thông tin của máy bay
       .populate(
@@ -128,6 +130,7 @@ exports.getFlightById = async (req, res) => {
     if (!flight) {
       return res.status(404).json({ message: 'Không tìm thấy chuyến bay.' });
     }
+    console.log(flight.availableSeats);
 
     // Trả về thông tin chuyến bay
     res.status(200).json({ flight });
