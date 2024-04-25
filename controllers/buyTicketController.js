@@ -159,12 +159,14 @@ exports.getOneTicket = async (req, res, next) => {
     const invoice = await Invoice.findById(req.params.invoiceId);
     const temp = await populateInvoiceData(invoice);
     const ticket = temp.boughtTickets.find((t) => t.id == req.params.ticketId);
+    const qr = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${ticket.id}`;
     res.status(200).json({
       status: 'success',
       ticket,
+      qr: qr,
     });
   } catch (err) {
     return next(AppError('Fail to get one invoice', 400));
   }
 };
-//Get all ticket (admin)
+// Get all ticket

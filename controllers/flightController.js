@@ -90,6 +90,7 @@ exports.getFlights = async (req, res) => {
         seats,
       );
     }
+    console.log(flights);
 
     // Chuẩn bị dữ liệu trả về
     const formattedFlights = flights.map((flight) => {

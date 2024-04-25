@@ -210,7 +210,10 @@ thay đổi trạng thái thanh toán
 
 //PATCH: Sửa thông tin user
 
+
 7. REPORT 
+// Doanh thu, số lượng user đăng kí, số lượng vé bán ra, số chuyến bay, số lượng vé bị hủy theo ngày hôm nay.
+
 // Doanh thu + số vé bán ra + số chuyến bay theo từng tháng/ năm
 {
 	
@@ -224,22 +227,7 @@ thay đổi trạng thái thanh toán
 	numOfUsers
 
 }
-// Số lượng user của app {
-	year: 
-	numOfUsers: 
-}
-// Thống kê theo tháng
-{
-	sumTurnover:
-	sumNumOfFlights:
-	sumNumOfSoldTickets: 
-	sumNumOfCanceledTickets:
-	flights:{
-		numOfSoldTicket:
-		numOfCanceledTicket: 
-		turnover: 
-	}
-}
+
 
 7. NOTI
 

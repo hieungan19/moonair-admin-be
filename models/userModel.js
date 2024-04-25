@@ -57,6 +57,10 @@ const userSchema = new mongoose.Schema({
   passportId: String,
   dob: Date,
   country: String,
+  createdAt: {
+    type: Date,
+    default: Date.now(),
+  },
 });
 // middle
 userSchema.pre(/^find/, function (next) {

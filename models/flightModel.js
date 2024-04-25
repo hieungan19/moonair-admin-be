@@ -49,6 +49,10 @@ const flightSchema = new mongoose.Schema(
     },
     tickets: [flightTicketSchema],
     transitAirports: [transitAirportSchema],
+    createdAt: {
+      type: Date,
+      default: Date.now(),
+    },
   },
   {
     toJSON: { virtuals: true },
