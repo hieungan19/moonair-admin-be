@@ -52,7 +52,7 @@ module.exports = class Email {
     await this.createTransportFunction().sendMail(mailOptions);
   }
   async sendWelcome() {
-    await this.send('welcome', 'Welcome to the Natours Family!');
+    await this.send('welcome', 'Welcome to the MoonAir!');
   }
   async sendForgotPasswordUrl() {
     await this.send(

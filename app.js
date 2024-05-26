@@ -19,13 +19,9 @@ const invoiceRouter = require('./routes/buyTicketRoutes');
 const historyRouter = require('./routes/historyTicketRoutes');
 const globalErrorHandler = require('./handlers/errorHandler');
 //Middleware
-app.use(
-  cors({
-    origin: 'http://localhost:3001',
-    methods: 'GET,POST,PUT,DELETE,PATCH',
-    credentials: true,
-  }),
-);
+// Sử dụng middleware CORS
+app.use(cors());
+
 app.use(express.json({ limit: '10kb' }));
 // setup session
 app.use(
