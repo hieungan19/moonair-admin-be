@@ -80,9 +80,23 @@ exports.todayReport = async (req, res, next) => {
       today.getDate() + 1,
     );
     const data = await reportInfo(startOfDay, endOfDay);
+    let soldTickets = 0;
+
+    const flights = await Flight.find();
+
+    flights.forEach((flight) => {
+      flight.tickets.forEach((ticket) => {
+        soldTickets += ticket.seatsBooked.length;
+      });
+    });
+    const doc = {
+      data: data,
+      totalUser: await User.countDocuments(),
+      totalSoldTicket: soldTickets,
+    };
     res.status(200).json({
       status: 'success',
-      data,
+      doc,
     });
   } catch (error) {
     return next(new AppError('Fail to get report for today', 400));
@@ -93,18 +107,38 @@ exports.monthlyReport = async (req, res, next) => {
   try {
     const today = new Date();
     const currentYear = today.getFullYear();
+    const monthNames = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
     const doc = [];
+
     for (let month = 0; month < 12; month++) {
       const startOfMonth = new Date(currentYear, month, 1);
       const endOfMonth = new Date(currentYear, month + 1, 0);
       const data = await reportInfo(startOfMonth, endOfMonth);
+
+      // Include the month name in the data object
+      data.month = monthNames[month];
+
       doc.push(data);
     }
+
     res.status(200).json({
       status: 'success',
       doc,
     });
   } catch (error) {
-    return next(new AppError('Fail to get Monthly data'));
+    return next(new AppError('Fail to get Monthly data', 500));
   }
 };

@@ -8,6 +8,9 @@ const {
   protect,
   logout,
   restrictTo,
+  checkResetPassword,
+
+  googleLogin,
 } = require('../controllers/authController');
 const {
   getMe,
@@ -21,12 +24,15 @@ const router = express.Router();
 //authen
 router.post('/signup', signUp);
 router.post('/login', login);
+router.post('/gglogin', googleLogin);
 router.post('/forgotPassword', forgotPassword);
+router.post('/checkResetPassword', checkResetPassword);
 router.patch('/resetPassword', resetPassword);
-router.get(
-  '/auth/google',
-  passport.authenticate('google', { scope: ['profile', 'email'] }),
-);
+
+// router.get(
+//   '/auth/google',
+//   passport.authenticate('google', { scope: ['profile', 'email'] }),
+// );
 
 router.get(
   '/auth/google/callback',

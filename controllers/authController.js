@@ -6,6 +6,23 @@ const AppError = require('../utils/appError');
 // const { sendEmail } = require('../utils/email');
 const Email = require('../utils/email');
 
+exports.googleLogin = async (req, res, next) => {
+  try {
+    const user = await User.findOne({ email: req.body.email });
+
+    if (!user) {
+      console.log(req.body);
+      const newUser = await User.create(req.body);
+
+      const url = `${req.protocol}://${req.get('host')}/me`;
+      const email = new Email(newUser, url);
+      await email.sendWelcome();
+      createAndSendToken(newUser, 200, res);
+    } else createAndSendToken(user, 200, res);
+  } catch (error) {
+    return next(new AppError('Fail to login with gg'));
+  }
+};
 const createAndSendToken = (user, statusCode, res) => {
   const token = signToken(user._id);
 
@@ -20,9 +37,7 @@ const createAndSendToken = (user, statusCode, res) => {
   res.status(statusCode).json({
     status: 'success',
     token,
-    data: {
-      user,
-    },
+    user,
   });
 };
 
@@ -132,9 +147,7 @@ exports.login = catchAsync(async (req, res, next) => {
 
   //2. check if user exists && password is correct
   const user = await User.findOne({ email }).select('+password');
-  console.log('User', user);
   const correct = await user.correctPassword(password, user.password);
-  console.log('Correct password:', correct);
   if (!user || !correct) {
     return next(new AppError('Incorrect email or password'), 401);
   }
@@ -183,6 +196,23 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
     );
   }
 });
+
+exports.checkResetPassword = async function (req, res, next) {
+  try {
+    const user = await User.findOne({
+      passwordReset: req.body.resetPassword,
+      email: req.body.email,
+    });
+    if (user) {
+      res.status(200).json({
+        status: 'success',
+        message: 'Reset password true.',
+      });
+    }
+  } catch (err) {
+    return next(new AppError('Reset password is wrong', 400));
+  }
+};
 
 exports.resetPassword = async function (req, res, next) {
   const user = await User.findOne({

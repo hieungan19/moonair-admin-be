@@ -1,6 +1,10 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
 const bcryptjs = require('bcrypt');
+function validatePhoneNumber(value) {
+  const phoneNumberRegex = /^\d+$/; // Biểu thức chính quy để kiểm tra số
+  return phoneNumberRegex.test(value);
+}
 
 const userSchema = new mongoose.Schema({
   active: {
@@ -12,6 +16,7 @@ const userSchema = new mongoose.Schema({
   role: {
     type: String,
     enum: ['user', 'admin'],
+    default: 'user',
   },
   name: {
     type: String,
@@ -26,6 +31,10 @@ const userSchema = new mongoose.Schema({
   },
   phoneNumber: {
     type: String,
+    validate: {
+      validator: validatePhoneNumber,
+      message: 'Phone number must contain only digits',
+    },
     // required: [true, 'Please provide phone number'],
   },
   photo: { type: String, default: 'default.jpg' },
@@ -49,18 +58,17 @@ const userSchema = new mongoose.Schema({
     },
     select: false,
   },
-  googleId: String,
-  passwordChangeAt: Date,
-  passwordReset: String,
-  passwordResetExpires: Date,
-  cityzenId: String,
-  passportId: String,
-  dob: Date,
-  country: String,
   createdAt: {
     type: Date,
     default: Date.now(),
   },
+  googleId: String,
+  passwordChangeAt: Date,
+  passwordReset: String,
+  passwordResetExpires: Date,
+  dob: Date,
+  country: String,
+  gender: String,
 });
 // middle
 userSchema.pre(/^find/, function (next) {

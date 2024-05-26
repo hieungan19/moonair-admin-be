@@ -23,6 +23,7 @@ const formattedFlight = (flight) => {
     availableSeats: flight.availableSeats,
     flightCode: flight.code,
     transitAirportCount: flight.transitAirports.length,
+    aircraftName: flight.aircraft.name,
   };
 };
 
@@ -55,6 +56,7 @@ async function selectFlightsByFromToCityAndDate(from, to, takeoffDate, seats) {
     })
       .populate('departureAirport', 'name city country cityCode') // Chỉ hiển thị thông tin cần thiết của sân bay xuất phát
       .populate('destinationAirport', 'name city country cityCode') // Chỉ hiển thị thông tin cần thiết của sân bay đến
+      .populate('aircraft', 'name code')
       .select(
         'code departureAirport destinationAirport takeoffTime landingTime tickets transitAirports',
       ); // Chỉ lấy các trường cần thiết
@@ -77,8 +79,9 @@ exports.getFlights = async (req, res) => {
       flights = await Flight.find()
         .populate('departureAirport', 'name city country cityCode')
         .populate('destinationAirport', 'name city country cityCode')
+        .populate('aircraft', 'name') // Populate thông tin của máy bay
         .select(
-          'code departureAirport destinationAirport takeoffTime landingTime tickets transitAirports',
+          'code departureAirport destinationAirport takeoffTime landingTime tickets transitAirports aircraft',
         );
       flights = flights.filter((flight) => flight.availableSeats > 0);
     } else {
