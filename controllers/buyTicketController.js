@@ -8,6 +8,7 @@ const populateInvoiceData = async (data) => {
       path: 'user',
       select: 'name email phoneNumber',
     },
+
     {
       path: 'boughtTickets',
       populate: [
@@ -18,10 +19,20 @@ const populateInvoiceData = async (data) => {
         {
           path: 'flight',
           select: 'takeoffTime landingTime ',
-          populate: {
-            path: 'departureAirport destinationAirport',
-            select: 'name city cityCode',
-          },
+          populate: [
+            {
+              path: 'departureAirport destinationAirport',
+              select: 'name city cityCode',
+            },
+            {
+              path: 'transitAirports',
+              select: 'startTime endTime',
+              populate: {
+                path: 'airport',
+                select: 'name',
+              },
+            },
+          ],
         },
       ],
     },
