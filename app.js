@@ -70,6 +70,9 @@ app.use('/api/v1/report', reportRouter);
 app.all('*', (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
 });
+app.get('/', (req, res) => {
+  res.json({ message: 'Hello from backend' });
+});
 
 app.use(globalErrorHandler);
 
