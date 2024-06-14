@@ -97,9 +97,9 @@ exports.createCode = (id) => {
 
 // Tạo mã thành phố
 exports.createCityCode = (city) => {
-  const words = city.split(' ');
+  const words = city?.split(' ');
   let cityCode = '';
-  words.forEach((word) => {
+  words?.forEach((word) => {
     cityCode += word.charAt(0);
   });
   return cityCode.toUpperCase();

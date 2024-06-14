@@ -26,10 +26,10 @@ const populateInvoiceData = async (data) => {
             },
             {
               path: 'transitAirports',
-              select: 'startTime endTime',
+              select: 'startTime endTime ',
               populate: {
                 path: 'airport',
-                select: 'name',
+                select: 'name city',
               },
             },
           ],
@@ -37,12 +37,14 @@ const populateInvoiceData = async (data) => {
       ],
     },
   ]);
+
   return doc;
 };
 //Create a invoice
 exports.createInvoice = async (req, res, next) => {
   try {
     const data = await Invoice.create(req.body);
+    console.log(data);
     if (!data) {
       return next(new AppError('Fail to create', 400));
     }
@@ -53,6 +55,7 @@ exports.createInvoice = async (req, res, next) => {
       doc,
     });
   } catch (err) {
+    console.log(err);
     return next(new AppError('Fail to create invoice', 400));
   }
 };
@@ -95,19 +98,41 @@ exports.getAllInvoices = async (req, res, next) => {
 //Update a ticket status
 exports.updateTicketStatus = async (req, res, next) => {
   try {
-    const { status, boughtTicketId, invoiceId } = req.body;
-    const invoice = await Invoice.findById(invoiceId);
-    const boughtTicketIndex = invoice.boughtTickets.findIndex(
-      (ticket) => ticket._id == boughtTicketId,
+    // Lấy tất cả các invoice
+    const invoices = await Invoice.find();
+    //
+    let foundInvoice = null;
+
+    // Khai báo biến để chứa ticket nếu tìm thấy
+    let foundTicket = null;
+
+    // Duyệt qua từng invoice
+    for (const invoice of invoices) {
+      // Tìm ticket trong danh sách boughtTickets của invoice hiện tại
+      const ticket = invoice.boughtTickets.find(
+        (t) => t.id == req.params.ticketId,
+      );
+
+      // Nếu tìm thấy ticket, gán giá trị cho foundTicket và thoát vòng lặp
+      if (ticket) {
+        foundTicket = ticket;
+        foundInvoice = invoice;
+
+        break;
+      }
+    }
+    console.log(foundInvoice.id);
+    const boughtTicketIndex = foundInvoice.boughtTickets.findIndex(
+      (ticket) => ticket._id == foundTicket.id,
     );
     // Update the status of the boughtTicket
-    invoice.boughtTickets[boughtTicketIndex].status = status;
+    foundInvoice.boughtTickets[boughtTicketIndex].status = false;
 
     // Save the updated invoice
-    await invoice.save();
+    await foundInvoice.save();
 
     //Update Booked seat in flight
-    const t = invoice.boughtTickets[boughtTicketIndex];
+    const t = foundInvoice.boughtTickets[boughtTicketIndex];
     const flight = await Flight.findById(t.flight);
     const ticketIndex = flight.tickets.findIndex(
       (ticket) => ticket.class == t.ticketClass,
@@ -123,7 +148,7 @@ exports.updateTicketStatus = async (req, res, next) => {
       message: 'Bought ticket status updated successfully',
     });
   } catch (err) {
-    return next(new AppError('Hủy vé không thành công', 400));
+    return next(new AppError('Failed to cancel ticket', 400));
   }
 };
 
@@ -164,20 +189,50 @@ exports.ticketsHistory = async (req, res, next) => {
   }
 };
 
-//Get a ticket by ticket id and invoice id
+//Get a ticket by ticket id
 exports.getOneTicket = async (req, res, next) => {
   try {
-    const invoice = await Invoice.findById(req.params.invoiceId);
-    const temp = await populateInvoiceData(invoice);
-    const ticket = temp.boughtTickets.find((t) => t.id == req.params.ticketId);
-    const qr = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${ticket.id}`;
+    // Lấy tất cả các invoice
+    const invoices = await Invoice.find();
+
+    // Khai báo biến để chứa ticket nếu tìm thấy
+    let foundTicket = null;
+
+    // Duyệt qua từng invoice
+    for (const invoice of invoices) {
+      // Sử dụng hàm populateInvoiceData để lấy thông tin chi tiết của invoice
+      const populatedInvoice = await populateInvoiceData(invoice);
+      if (invoice.user._id == req.params.id) {
+        // Tìm ticket trong danh sách boughtTickets của invoice hiện tại
+        const ticket = populatedInvoice.boughtTickets.find(
+          (t) => t.id == req.params.ticketId,
+        );
+
+        // Nếu tìm thấy ticket, gán giá trị cho foundTicket và thoát vòng lặp
+        if (ticket) {
+          foundTicket = ticket;
+          break;
+        }
+      }
+    }
+
+    // Nếu không tìm thấy ticket, trả về lỗi
+    if (!foundTicket) {
+      return next(new AppError('Ticket not found', 404));
+    }
+
+    // Tạo QR code URL
+    const qr = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${foundTicket.id}`;
+
+    // Trả về kết quả
     res.status(200).json({
       status: 'success',
-      ticket,
+      ticket: foundTicket,
       qr: qr,
     });
   } catch (err) {
-    return next(AppError('Fail to get one invoice', 400));
+    // Xử lý lỗi
+    return next(new AppError('Fail to get one ticket', 400));
   }
 };
 // Get all ticket

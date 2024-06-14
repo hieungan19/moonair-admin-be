@@ -3,6 +3,17 @@ const Airport = require('../models/airportModel');
 const Flight = require('../models/flightModel');
 
 const formattedFlight = (flight) => {
+  // Initialize variables to track the class with the smallest ratio
+  let smallestRatioClass = null;
+  let smallestRatio = Infinity;
+
+  // Loop through the tickets and find the class with the smallest ratio
+  flight.tickets.forEach((ticket) => {
+    if (ticket.class && ticket.class.ratio < smallestRatio) {
+      smallestRatio = ticket.class.ratio;
+      smallestRatioClass = ticket.class.name;
+    }
+  });
   return {
     _id: flight.id,
     departureAirport: {
@@ -23,7 +34,11 @@ const formattedFlight = (flight) => {
     availableSeats: flight.availableSeats,
     flightCode: flight.code,
     transitAirportCount: flight.transitAirports.length,
+    price: flight.price,
     aircraftName: flight.aircraft.name,
+    minPrice: flight.price * smallestRatio,
+    nameMinPrice: smallestRatioClass,
+    transitAiports: flight.transitAirports,
   };
 };
 
@@ -54,11 +69,19 @@ async function selectFlightsByFromToCityAndDate(from, to, takeoffDate, seats) {
         $lt: new Date(new Date(takeoffDate).getTime() + 24 * 60 * 60 * 1000), // Kết thúc ngày
       },
     })
+      .populate({
+        path: 'transitAirports',
+        populate: { path: 'airport ', select: 'name city cityCode ' }, // Populate thông tin sân bay
+      })
+      .populate({
+        path: 'tickets',
+        populate: { path: 'class', select: 'name ratio' }, // Populate thông tin của hạng vé máy bay
+      })
       .populate('departureAirport', 'name city country cityCode') // Chỉ hiển thị thông tin cần thiết của sân bay xuất phát
       .populate('destinationAirport', 'name city country cityCode') // Chỉ hiển thị thông tin cần thiết của sân bay đến
       .populate('aircraft', 'name code')
       .select(
-        'code departureAirport destinationAirport takeoffTime landingTime tickets transitAirports',
+        'code departureAirport destinationAirport takeoffTime landingTime tickets transitAirports tickets price',
       ); // Chỉ lấy các trường cần thiết
     flights = flights.filter((flight) => flight.availableSeats >= seats);
 
@@ -77,11 +100,19 @@ exports.getFlights = async (req, res) => {
     // Kiểm tra xem các tham số có tồn tại không
     if (!fromAirport || !toAirport || !takeoffDate) {
       flights = await Flight.find()
+        .populate({
+          path: 'transitAirports',
+          populate: { path: 'airport ', select: 'name city cityCode ' }, // Populate thông tin sân bay
+        })
+        .populate({
+          path: 'tickets',
+          populate: { path: 'class', select: 'name ratio' }, // Populate thông tin của hạng vé máy bay
+        })
         .populate('departureAirport', 'name city country cityCode')
         .populate('destinationAirport', 'name city country cityCode')
         .populate('aircraft', 'name') // Populate thông tin của máy bay
         .select(
-          'code departureAirport destinationAirport takeoffTime landingTime tickets transitAirports aircraft',
+          'code departureAirport destinationAirport takeoffTime landingTime tickets transitAirports aircraft price tickets ',
         );
       flights = flights.filter((flight) => flight.availableSeats > 0);
     } else {
@@ -93,7 +124,6 @@ exports.getFlights = async (req, res) => {
         seats,
       );
     }
-    console.log(flights);
 
     // Chuẩn bị dữ liệu trả về
     const formattedFlights = flights.map((flight) => {

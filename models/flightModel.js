@@ -15,13 +15,13 @@ const flightSchema = new mongoose.Schema(
       type: mongoose.Schema.ObjectId,
       require: [true, 'Destination Airport is required.'],
       ref: 'Airport',
-      validate: {
-        validator: function (value) {
-          return value.toString() !== this.departureAirport.toString();
-        },
-        message:
-          'Destination Airport must be different from Departure Airport.',
-      },
+      // validate: {
+      //   validator: function (value) {
+      //     return value.toString() !== this.departureAirport.toString();
+      //   },
+      //   message:
+      //     'Destination Airport must be different from Departure Airport.',
+      // },
     },
     aircraft: {
       type: mongoose.Schema.ObjectId,
@@ -36,12 +36,12 @@ const flightSchema = new mongoose.Schema(
     landingTime: {
       type: Date,
       require: [true, 'Landing time is required.'],
-      validate: {
-        validator: function (value) {
-          return value > this.takeoffTime;
-        },
-        message: 'Landing time must be after Take off time',
-      },
+      // validate: {
+      //   validator: function (value) {
+      //     return value > this.takeoffTime;
+      //   },
+      //   message: 'Landing time must be after Take off time',
+      // },
     },
     price: {
       type: Number,
